@@ -1,0 +1,290 @@
+/*EJERCICIOS 1 y 2
+
+Input:
+	varlist = [x,f] = lista de variables:	
+		x = variable independiente
+		f = variable dependiente
+
+	conini = condición inicial del problema
+
+	expre = expresión que define la ecuación diferencial de primer orden
+
+	varnewlist = [y,cambiovar] = lista de elementos que definen a la nueva variable en función de la antigua:
+		y = nueva variable
+		cambiovar = expresión que relaciona la variable vieja "x" con la variable nueva "y" de la forma x=x(y).Para que la función opere correctamente, se debe 		utilizar un ejemplo de una función invertible que tenga solución única, como x=log(y), x=1/y ó x=m*y+n
+
+Output:
+
+	lista [funcion,condicion]
+
+		funcion = expresión que define la ecuación diferencial de primer orden expresada en términos de la nueva variable "y"
+
+		condicion = condición inicial del problema expresada en términos de la nueva variable "y"
+
+OBSERVACIÓN:
+	
+	Para el Ejercicio 1, que es un caso particular del Ejercicio2, se puede definir
+		expre:a(x)*diff(f(x),x,1)+b(x)*f(x)+c(x)		
+		conini:f(x0)-f0=0
+	
+	Para el Ejercicio 2, definir
+		expre: E(x,f(x),diff(f(x),x,1))
+		conini:f(x0)-f0=0
+*/
+
+funcioncambiovarEDO1(varlist,conini,expre,varnexlist):=block([aux],
+
+/*
+	Se define la variable interna:
+		aux = genera la inversa de la expresión varnewlist[2]=cambiovar al despejar varnewlist[1]="y" en función de varlist[1]="x", dando la 		expresión y=y(x).
+
+*/
+    aux:solve(varnewlist[2],varnewlist[1]),
+/*
+	Se define la función que expresa la ecuación diferencial en términos de varnewlist[1]="y" haciendo sustituciones sucesivas.
+
+	1) Se sustituye en "expre" el valor f'(x) por d(y(x))/dx*df(y)/dy. Para ello:
+
+		1.1) d(y(x))/dx se obtiene diferenciando el resultado de la variable "aux" respecto a varlist[1]="x" (se emplea sublis para que se aplique la 			diferenciación sólo sobre el segundo miembro de la ecuación proporcionada por "aux", que es y(x)).
+
+		1.2) f(y)/dy se obtiene diferenciando varlist[2](varnewlist[1])=f(y) respecto a varnewlist[1]="y"
+
+	2) Se sustituye en la expresión anterior varlist[2](varlist[1])=f(x) por f(x(y)), que se obtiene de la expresión varnewlist[2]=cambiovar mediante el comando 		rhs, que selecciona únicamente la parte a la derecha del símbolo =.
+	
+	3) Se sustituye en la expresión anterior la variable varlist[1]=x por x(y), que se obtiene de la expresión varnewlist[2]=cambiovar mediante el 	comando rhs.
+*/
+	funcion:subst(rhs(varnewlist[2]),varlist[1], 
+
+			subst(varlist[2](rhs(varnewlist[2])),varlist[2](varlist[1]),
+       
+				subst(diff(sublis(aux,varnewlist[1]),varlist[1],1)*diff(varlist[2](varnewlist[1]),varnewlist[1],1),
+        			diff(varlist[2](varlist[1]),varlist[1],1),expre))),
+/*
+	Se define la condición inicial mediante la sustitución de x0 por y0=y(x0).
+
+	1) Se despeja x0 de "conini" mediante el comando arg aplicado de forma sucesiva a "conini" (el primero extrae [f(x0)-f(0)], el segundo extrae [f(x0)] y el 		tercero extrae [x0]).
+
+	2) Se sustituye en la expresión varnewlist[2]=cambiovar varlist[1]=x por x0
+
+	3) Se despeja varnewlist[1]=y de la ecuación anterior mediante el comando solve, obteniendo y0
+
+	4) Se selecciona la solución de la ecuación anterior mediante sublis
+
+	5) Se sustituye en "conini" la f(x0) por varlist[2]()=f(expresión obtenida en el paso previo), obteniendo así las nuevas condiciones iniciales dependientes 		de y0=y(x0).
+*/
+condicion:subst(varlist[2]
+		
+		(sublis
+			(solve
+				(subst
+					(args(args(args(conini)[1])[1])[1],
+					varlist[1],varnewlist[2]),
+
+			varnewlist[1]),
+
+		varnewlist[1])),
+
+	args(args(conini)[1])[1],conini),
+
+/*
+	Se organiza el output como una lista que contiene la ecuación diferencial en función de la nueva variable "y" y la condición inicial en función de y0.
+*/
+[funcion,condicion]
+)$
+
+
+/*
+	Ejemplo:
+*/
+
+varlist:[x,f];
+
+varnewlist:[y,x=log(y)];
+
+conini:f(1)-1/2=0;
+
+expre:e^x*diff(f(x),x,1)+e^x*f(x)+e^x;
+
+funcioncambiovarEDO1(varlist,conini,expre,varnewlist)$
+
+
+/*EJERCICIO 3
+
+Input:
+
+	varlist = [x,f] = lista de variables:	
+		x = variable independiente
+		f = variable dependiente
+
+	coninilist = [conini1,conini2] = lista de condiciones iniciales del problema
+		conini1:f(x0)-f0=0
+		conini2:subst(f(x0),f(x),diff(f(x),x,1)-v0=0)
+
+	expre = expresión que define la ecuación diferencial de segundo orden, como:
+		a(x)*diff(f(x),x,2)+b(x)*diff(f(x),x,1)+c(x)*f(x)+d(x) 
+		E(x,f(x),diff(f(x),x,1),diff(f(x),x,2))
+
+	varnewlist = [y,cambiovar] = lista de elementos que definen a la nueva variable en función de la antigua:
+		y = nueva variable
+		cambiovar = expresión que relaciona la variable vieja "x" con la variable nueva "y" de la forma x=x(y).Para que la función opere correctamente, se debe 		utilizar un ejemplo de una función invertible que tenga solución única, como x=log(y), x=1/y ó x=m*y+n
+
+
+Output:
+	lista [funcion,condiciones]
+
+		funcion = expresión que define la ecuación diferencial de segundo orden expresada en términos de la nueva variable "y"
+
+		condiciones = condiciones iniciales del problema expresadas en términos de la nueva variable "y"
+*/
+funcioncambiovarEDO2(varlist,coninilist,expre,varnewlist):=block([aux],
+/*
+	Se define la variable interna:
+            aux = genera la inversa de la expresión varnewlist[2]=cambiovar al despejar varnewlist[1]="y" en función de varlist[1]="x", generando la 		expresión y=y(x).
+
+*/
+	aux:solve(varnewlist[2],varnewlist[1]),
+/*
+	Se define la función que expresa la ecuación diferencial en términos de "y" haciendo sustituciones sucesivas.
+
+	1) Se sustituye en "expre" el valor f''(x) por d²(y(x))/dx²*df(y)/dy + (d(y(x))/dx)²*d²f(y)/dy². Para ello:
+
+		1.1) d²(y(x))/dx² se obtiene diferenciando dos veces respecto a varlist[1]=x el resultado de la variable "aux" empleando sublis
+
+		1.2) f(y)/dy se obtiene diferenciando una vez varlist[2](varnew[1])=f(y) respecto a varnewlist[1]=y
+		
+		1.3) (d(y(x))/dx)² se obtiene diferenciando una vez respecto a varlist[1]=x el resultado de la variable "aux" empleando sublis, y elevando al 			cuadrado
+
+		1.4) d²f(y)/dy² se obtiene diferenciando dos veces varlist[2](varnew[1])=f(y) respecto a varnewlist[1]=y, y elevando al cuadrado
+
+	2) Se sustituye en la expresión anterior el valor f'(x) por d(y(x))/dx*df(y)/dy, calculándose como en 1.2) y 1.3).	
+
+	3) Se sustituye en la expresión anterior varlist[2](varlist[1])=f(x) por varlist[2](x(y))=f(x(y)), obteniendo el argumento (x(y)) a partir de 			varnewlist[2]=cambiovar mediante el comando rhs.
+	
+	4) Se sustituye en la expresión anterior varlist[1]=x por x(y), obteniendo esta última a partir de la expresión varnewlist[2]=cambiovar mediante el comando rhs.
+*/
+
+funcion:subst(rhs(varnewlist[2]),varlist[1], 
+
+            subst(varlist[2](rhs(varnewlist[2])),varlist[2](varlist[1]),
+
+            	subst(diff(sublis(aux,varnewlist[1]),varlist[1],1)*diff(varlist[2](varnewlist[1]),
+		
+		varnewlist[1],1),diff(f(varlist[1]),varlist[1],1),
+
+            		
+			subst((diff(sublis(aux,varnewlist[1]),varlist[1],2)*
+				
+				diff(varlist[2](varnewlist[1]),varnewlist[1],1)+
+
+				diff(sublis(aux,varnewlist[1]),varlist[1],1)^2*
+
+				diff(f(varnewlist[1]),varnewlist[1],2)),
+
+			diff(varlist[2](varlist[1]),varlist[1],2),expre)))),
+/*
+	Se definen las condiciones iniciales mediante la sustitución de x0 por y0=y(x0), creando una lista con las dos condiciones iniciales según "y".
+
+	1) La condición inicial coninilist[1]=conini1 es de la forma f(x0)-f0=0. Para el cambio de variable se siguen los mismos pasos que en el Ejercicio 1:
+
+		1.1) Se despeja x0 de coninilist[1] mediante el comando arg aplicado de forma sucesiva a coninilist[1] (el primero extrae [f(x0)-f(0)], el segundo 			extrae [f(x0)] y el tercero extrae [x0]).
+
+		1.2) Se sustituye en la expresión varnewlist[2]=cambiovar varlist[1]="x" por x0
+
+		1.3) Se despeja varnewlist[1]=y de la ecuación anterior mediante el comando solve, obteniendo y0
+
+		1.4) Se selecciona la solución de la ecuación anterior mediante sublis
+
+		1.5) Se sustituye en coninilist[1] la f(x0) por varlist[2]()=f(expresión obtenida en el paso previo), obteniendo así las nuevas condiciones 			iniciales dependientes de y0=y(x0).
+*/
+condiciones:
+[subst
+	(varlist[2](sublis
+		
+		(solve
+			(subst
+				(args(args(args(coninilist[1])[1])[1])[1],
+				
+				varlist[1],varnewlist[2]),
+
+		varnewlist[1]),
+                
+	varnewlist[1])),
+
+args(args(coninilist[1])[1])[1],coninilist[1]),
+
+/*
+	2) La condición inicial coninilist[2]=conini2 es de la forma subst(f(x0),f(x),diff(f(x),x,1)-v0=0). Para el cambio de variable se siguen los siguientes pasos:
+
+		2.1) Se obtiene la expresión d(y(x))/dx*df(y)/dy como se ha descrito más arriba en "funcion"
+
+		2.2) Se sustituye en la expresión anterior varlist[2](varnew[1])=f(y) por f(y(x)), obteniéndose y(x) aplicando sublis al output de la 			ecuación que define la inversa (sublis(aux,varnewlist[1])).
+
+		2.3) Se sustituye en la expresión anterior varlist[1]="x" por x0, despejada a partir de coninilist[2] mediante el comando arg aplicado de forma 			sucesiva (el primero extrae [d(f(x0))/dx-f(0)], el segundo extrae [d(f(x0))/dx], el tercero extrae [f(x0)] y el cuarto [x0]).
+
+		2.4) Se sustituye en coninilist[2] d(f(x0))/dx por la expresión obtenida en el paso previo, obteniendo así las nuevas condiciones iniciales dependientes 			de y0=y(x0).
+*/
+
+subst
+	(subst
+		(args(args(args(args(coninilist[2])[1])[1])[1])[1],varlist[1],
+
+    			subst
+				(varlist[2](sublis(aux,varnewlist[1])),varlist[2](varnewlist[1]), 
+
+				diff(sublis(aux,varnewlist[1]),varlist[1],1)*diff(varlist[2](varnewlist[1]),varnewlist[1],1))),
+				
+args(args(coninilist[2])[1])[1],coninilist[2])],
+
+/*
+	Se organiza el output como una lista que contiene la ecuación diferencial en función de la nueva variable "y" y las condiciones iniciales en función de y0.
+*/
+[funcion,condiciones]
+
+)$
+
+/*
+	Ejemplo
+*/
+
+
+varlist:[x,f];
+
+varnewlist:[y,x=log(y)];
+
+coninilist:[f(2)-1/2=0,subst(f(2),f(x),diff(f(x),x,1)-3/2=0)];
+
+expre:e^x*diff(f(x),x,2)+e^x*diff(f(x),x,1)+e^x*f(x)+e^x;
+
+funcioncambiovarEDO2(varlist,coninilist,expre,varnewlist)$
+
+
+
+/*EJERCICIO 4
+
+Input
+	funciones = lista [x(y),f(y)] de las dos funciones dependientes del parámetro a representar 
+		cambiovar = cambio de variable que expresa "x" en función de "y", x(y)
+		f = función de "y", f(y)
+
+	param = parámetro y
+
+	rangoparam = lista [ymin,ymax] de los valores mínimo y máximo del parámetro. Para un correcto funcionamiento, se debe definir un valor, por ejemplo [-10,10].
+
+*/
+verfuncion(funciones,param,rangoparam):=block(
+/*
+	Representa en una gráfica en 2 dimensiones, en función de un parámetro, la relación que define x(y) frente a f(y)
+*/
+plot2d([parametric,funciones[1],funciones[2],
+/*
+	parametrizando según "y", que tiene un valor mínimo y máximo definidos.
+*/
+[param,rangoparam[1],rangoparam[2]]]))$
+
+/*
+	Ejemplo
+*/
+funciones:[log(y),1/y];
+param:y;
+rangoparam:[-10,10];
+verfuncion(funciones,param,rangoparam)$

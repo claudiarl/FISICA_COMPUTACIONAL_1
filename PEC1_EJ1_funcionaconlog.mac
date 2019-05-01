@@ -1,0 +1,19 @@
+FUNCIONCAMBIOVARIABLE(x,f,conini,EXPRE,y,AUXX):=block([AUXX,AUX2,conini],
+    AUXX:x=x(y),
+    AUX2:solve(AUXX,y),
+    conini:f(x0)-f0=0,
+funcion:subst(rhs(AUXX),x, subst(f(rhs(AUXX)),f(x),
+            subst(diff(sublis(AUX2,y),x,1)*diff(f(y),y,1),diff(f(x),x,1),EXPRE))),
+condiciones:condiciones:subst((subst(x0,x,sublis(AUX2,y))),x0,conini),[funcion,condiciones]
+);
+
+
+
+FUNCIONCAMBIOVARIABLE(x,f,conini,EXPRE,y,AUXX):=block([AUXX,AUX2,conini],
+    AUXX:x=log(y),
+    AUX2:solve(AUXX,y),
+    conini:f(x0)-f0=0,
+funcion:subst(rhs(AUXX),x, subst(f(rhs(AUXX)),f(x),
+            subst(diff(sublis(AUX2,y),x,1)*diff(f(y),y,1),diff(f(x),x,1),EXPRE))),
+condiciones:condiciones:subst((subst(x0,x,sublis(AUX2,y))),x0,conini),[funcion,condiciones]
+);

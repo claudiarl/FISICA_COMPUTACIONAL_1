@@ -1,0 +1,29 @@
+/*taylorlist: lista de desarrollos en serie de Taylor de orden 0 a orden dado
+Input:
+1: f=función de variable cuyo desarrollo se va a calcular
+2: x=variable
+3: x0=punto en torno al que se desarrolla
+4: n=orden del desarrollo
+Output: lista de desarrollos de f(x) en serie de potencias de (x-x0) de orden 0 a orden n*/
+
+taylorlist(f,x,x0,n):=block([TL,aux],
+
+/*asignar a función f la variable auxiliar aux*/
+   
+aux:f,
+
+/*definir variable auxiliar TL como lista de un solo elemento correspondiente con primer elemento de desarrollo, o sea f(x0)*/
+
+TL: [subst(x0,x,aux)],
+
+/*es un bucle en el que se van evaluando los sucesivos elementos del desarrollo y se van incluyendo en lista TL como elementos adicionales mediante append*/
+
+for i:1 thru n step 1 do (
+
+/*calcular derivadas de orden1 a orden n*/
+
+aux:diff(aux,x),
+
+/*cada derivada evaluada en x0 y multiplicada por (1/i!)*(x-x0)^i proporciona cada elemento del desarrollo, se construye así la lista de desarrollos*/
+
+TL:append(TL,[TL[i]+(1/i!)*subst(x0,x,aux)*(x-x0)^i])),TL);

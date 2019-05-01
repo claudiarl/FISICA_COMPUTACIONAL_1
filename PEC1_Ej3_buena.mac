@@ -1,0 +1,33 @@
+FUNCIONCAMBIOVARIABLESEGUNDOORDEN(x,f,conini,EXPRE,y,cambiovar):=block([cambiovar,aux,conini],
+    cambiovar:x=f(y),
+    aux:changevar(y=y(x),cambiovar,y,x),
+   conini:[ conini1:f(x0)-f0=0,
+    conini2:subst(f(x0),f(x),diff(f(x),x,1))-v0=0],
+funcion:subst(y,x, subst(cambiovar,f(x),subst(diff(aux,x,1)*diff(cambiovar,y,1),diff(f(x),x,1),subst((diff(aux,x,2)*diff(cambiovar,y,1)+diff(aux,x,1)^2*diff(cambiovar,y,2)),diff(f(x),x,2),EXPRE)))),
+condiciones:[changeconini1:subst(changevar(y0,x0=f(y0),y,x),x0,conini1),
+changeconini2:subst(f(y0),f(y),diff(f(y),y,1))-v0/(subst(y(y0),y(x),diff(y(x),x,1)))],
+    [funcion,condiciones]
+
+);
+
+
+
+MEJOR!!ALTERNATIVA USANDO CHANGECONINI2 COMO
+subst(changevar(f(y0),f(y0),y,x),f(y),
+    subst(changevar(y(y0),f(y0),y,x),y(x),
+        subst(diff(aux,x,1)*diff(cambiovar,y,1),diff(f(x),x,1),conini2)));
+
+FUNCIONCAMBIOVARIABLESEGUNDOORDEN(x,f,conini,EXPRE,y,cambiovar):=block([cambiovar,aux,conini],
+    cambiovar:f(y),
+    aux:changevar(y(x),cambiovar,y,x),
+   conini:[ conini1:f(x0)-f0=0,
+        conini2_cualquierx:diff(f(x),x,1)-v0=0,
+    conini2:subst(f(x0),f(x),conini2_cualquierx)],
+funcion:subst(y,x, subst(cambiovar,f(x),subst(diff(aux,x,1)*diff(cambiovar,y,1),diff(f(x),x,1),subst((diff(aux,x,2)*diff(cambiovar,y,1)+diff(aux,x,1)^2*diff(cambiovar,y,2)),diff(f(x),x,2),EXPRE)))),
+condiciones:[changeconini1:subst(changevar(y0,f(y0),y,x),x0,conini1),
+changeconini2:subst(changevar(f(y0),f(y0),y,x),f(y),
+    subst(changevar(y(y0),f(y0),y,x),y(x),
+        subst(diff(aux,x,1)*diff(cambiovar,y,1),diff(f(x),x,1),conini2_cualquierx)))],
+    [funcion,condiciones]
+
+);

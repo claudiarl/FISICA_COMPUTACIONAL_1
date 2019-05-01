@@ -1,0 +1,17 @@
+/*Aplica cambios de base sobre aplicaciones lineales, tal que input:1:"basenueva"=lista vectores que forman nueva base, 2:"M"=matriz sobre la que se aplica el cambio;output: componentes de la matriz en la nueva base*/
+
+cambiobasevector(basenueva,M):=block([A,B], 
+
+
+/*se construye matriz del cambio de base y se guarda en variable local A*/
+A:matrix(basenueva[1]),
+
+for i:2 thru length(basenueva)step 1 do A:addrow(A, basenueva[i]),
+
+A:transpose(A), 
+
+/*guardar la inversa de matriz cambio de base en variable local B*/
+B:invert(A),
+
+/*aplicar cambio base sobre M*/ 
+B.(M.A));

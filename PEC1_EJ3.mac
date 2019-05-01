@@ -1,0 +1,20 @@
+(%i1)	AUX1:x=f(y);
+(AUX1)	x=f(y)
+(%i2)	AUX2:changevar(y=y(x),AUX1,y,x);
+(AUX2)	y=y(x)
+(%i3)	EXPRE:a(x)*diff(f(x),x,2)+b(x)*diff(f(x),x,1)+c(x)*f(x)+d(x);
+(EXPRE)	a(x)*('diff(f(x),x,2))+b(x)*('diff(f(x),x,1))+c(x)*f(x)+d(x)
+(%i4)	PRIMERO:subst((diff(AUX2,x,2)*diff(AUX1,y,1)+diff(AUX2,x,1)^2*diff(AUX1,y,2)),diff(f(x),x,2),EXPRE);
+(PRIMERO)	b(x)*('diff(f(x),x,1))+c(x)*f(x)+d(x)=a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+b(x)*('diff(f(x),x,1))+c(x)*f(x)+d(x)
+(%i5)	
+	SEGUNDO:subst(diff(AUX2,x,1)*diff(AUX1,y,1),diff(f(x),x,1),PRIMERO);
+(SEGUNDO)	c(x)*f(x)+d(x)=b(x)*('diff(y(x),x,1))*('diff(f(y),y,1))+c(x)*f(x)+d(x)=(a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+c(x)*f(x)+d(x)=a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+b(x)*('diff(y(x),x,1))*('diff(f(y),y,1))+c(x)*f(x)+d(x))
+(%i6)	TERCERO:subst(AUX1,f(x),SEGUNDO);
+(TERCERO)	d(x)+x*c(x)=c(x)*f(y)+d(x)=(b(x)*('diff(y(x),x,1))*('diff(f(y),y,1))+d(x)+x*c(x)=b(x)*('diff(y(x),x,1))*('diff(f(y),y,1))+c(x)*f(y)+d(x))=(a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+d(x)+x*c(x)=a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+c(x)*f(y)+d(x)=(a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+b(x)*('diff(y(x),x,1))*('diff(f(y),y,1))+d(x)+x*c(x)=a(x)*(('diff(y(x),x,1))^2*('diff(f(y),y,2))+('diff(y(x),x,2))*('diff(f(y),y,1)))+b(x)*('diff(y(x),x,1))*('diff(f(y),y,1))+c(x)*f(y)+d(x)))
+(%i7)	subst(y,x, TERCERO);
+(%o7)	d(y)+y*c(y)=c(y)*f(y)+d(y)=(b(y)*('diff(f(y),y,1))*('diff(y(y),y,1))+d(y)+y*c(y)=b(y)*('diff(f(y),y,1))*('diff(y(y),y,1))+c(y)*f(y)+d(y))=(a(y)*(('diff(f(y),y,1))*('diff(y(y),y,2))+('diff(f(y),y,2))*('diff(y(y),y,1))^2)+d(y)+y*c(y)=a(y)*(('diff(f(y),y,1))*('diff(y(y),y,2))+('diff(f(y),y,2))*('diff(y(y),y,1))^2)+c(y)*f(y)+d(y)=(a(y)*(('diff(f(y),y,1))*('diff(y(y),y,2))+('diff(f(y),y,2))*('diff(y(y),y,1))^2)+b(y)*('diff(f(y),y,1))*('diff(y(y),y,1))+d(y)+y*c(y)=a(y)*(('diff(f(y),y,1))*('diff(y(y),y,2))+('diff(f(y),y,2))*('diff(y(y),y,1))^2)+b(y)*('diff(f(y),y,1))*('diff(y(y),y,1))+c(y)*f(y)+d(y)))
+
+(%i8)	conini1:f(x0)-f0=0;
+(conini1)	f(x0)-f0=0
+(%i19)	conini2:subst(f(x0),f(x),diff(f(x),x,1))-v0=0;
+(conini2)	'diff(f(x0),x,1)-v0=0

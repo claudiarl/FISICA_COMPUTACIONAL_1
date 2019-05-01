@@ -1,0 +1,1 @@
+graficaderivadaEPS(f,x,a,b,filename):=block([aux],aux:[f,diff(f,x,1),diff(f,x,2)],plot2d(aux,[x,a,b],[gnuplot_term,ps],[gnuplot_out_file,filename]),wxplot2d(aux,[x,a,b]),return([aux[2],aux[3]]))$
